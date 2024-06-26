@@ -1,0 +1,28 @@
+{
+    "keyEvent":[
+        {
+            "keySymbol": "↵",
+            "key": "enter"
+        },
+        {
+            "keySymbol": "w",
+            "key": "w"
+        },
+        {
+            "keySymbol": "a",
+            "key": "a"
+        },
+        {
+            "keySymbol": "s",
+            "key": "s"
+        },
+        {
+            "keySymbol": "d",
+            "key": "d"
+        },
+        {
+            "keySymbol": "⭣",
+            "key": "page_down"
+        }
+    ]
+}
