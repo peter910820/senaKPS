@@ -8,49 +8,51 @@ import threading
 class SenaKps(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.setObjectName("senaKPS")
-        self.setWindowTitle('senaKPS')
-        self.setWindowOpacity(0.8)
-        self.resize(355, 90)
-        self.setFixedSize(355, 90)
-        
-        # self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True) #預設透明
-        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint) #無邊框
-        
-        self.key_amount = 6
-        self.counter = [0] * self.key_amount
-        self.key_name = [] 
-        self.key_symbol = [] 
-
-        self.listener = KeyboardListener()
+        # slots and threads(handle pynput listener)
+        self.listener = KeyListener()
         self.listener.on_press_signal.connect(self.on_press)
         self.listener.on_release_signal.connect(self.on_release)
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
-
+        #variable
+        self.key_amount = 6
+        self.counter = [0] * self.key_amount 
+        self.key_symbol = []
+        self.key_name = []
+        self.key_block_list = []
+        self.key_symbol_list = []
+        self.key_count_list = []
+        self.token = True
+        # load settings
         jsonFile = open('./settings.json', 'r', encoding='utf-8')
         self.settings = json.load(jsonFile)
         for i in self.settings['keyEvent']:
             self.key_symbol.append(i['keySymbol'])
             self.key_name.append(i['key'])
-        
-        self.key_block_list = []
-        self.key_symbol_list = []
-        self.key_count_list = []
-        self.token = True
+        #mainwindow settings
+        self.setObjectName("senaKPS")
+        self.setWindowTitle('senaKPS')
+        self.setWindowOpacity(self.settings['opacity'])
+        self.resize(355, 90)
+        self.setFixedSize(355, 90)
+        # self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True) #預設透明
+        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint) #無邊框
+        #create ui
         self.ui()
 
     # def paintEvent(self, event):
     #     painter = QPainter(self)
-    #     pixmap = QPixmap('transparent_image.png')
+    #     pixmap = QPixmap('cover.png')
 
     #     pixmap = pixmap.scaled(self.size())
 
     #     painter.drawPixmap(self.rect(), pixmap)
+
     def ui(self):
         hbox = QtWidgets.QWidget(self)
         hbox.setGeometry(0,0,355,90)
-        hbox.setStyleSheet('background-color: black')
+        css = f'background-color: {self.settings["color"]["backgroundColor"]}'
+        hbox.setStyleSheet(css)
         h_layout = QtWidgets.QHBoxLayout(hbox)
         h_layout.setContentsMargins(3, 5, 3, 5)
 
@@ -62,8 +64,8 @@ class SenaKps(QtWidgets.QWidget):
         container = QtWidgets.QWidget(self)
         id_name = f'container{symbol_index}'
         css = f'''
-        QWidget#{id_name}{{ border: 2px solid #9999ff; }}
-        QWidget#{id_name} QLabel {{ font-size: 25px; font-weight:bold; color: #9999ff; }}
+        QWidget#{id_name}{{ border: 2px solid {self.settings["color"]["mainColor"]}; }}
+        QWidget#{id_name} QLabel {{ font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]}; }}
         '''
         container.setObjectName(id_name)
         container.setStyleSheet(css)
@@ -94,18 +96,20 @@ class SenaKps(QtWidgets.QWidget):
                 print((key.char))
                 if key.char in self.key_name:
                     self.counter[self.key_name.index(key.char)] += 1
-                    self.key_symbol_list[self.key_name.index(key.char)].setStyleSheet('font-size: 25px; font-weight:bold; color: black;')
-                    self.key_count_list[self.key_name.index(key.char)].setStyleSheet('font-size: 25px; font-weight:bold; color: black;')
-                    css = f'''background-color: #9999ff;'''
+                    css = f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["backgroundColor"]};'
+                    self.key_symbol_list[self.key_name.index(key.char)].setStyleSheet(css)
+                    self.key_count_list[self.key_name.index(key.char)].setStyleSheet(css)
+                    css = f'background-color: {self.settings["color"]["mainColor"]};'
                     self.key_block_list[self.key_name.index(key.char)].setStyleSheet(css)
                     self.key_count_list[self.key_name.index(key.char)].setText(str(self.counter[self.key_name.index(key.char)]))
             if hasattr(key, 'name'):
                 print(key.name)
                 if key.name in self.key_name:
                     self.counter[self.key_name.index(key.name)] += 1
-                    self.key_symbol_list[self.key_name.index(key.name)].setStyleSheet('font-size: 25px; font-weight:bold; color: black;')
-                    self.key_count_list[self.key_name.index(key.name)].setStyleSheet('font-size: 25px; font-weight:bold; color: black;')
-                    css = f'''background-color: #9999ff;'''
+                    css = f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["backgroundColor"]};'
+                    self.key_symbol_list[self.key_name.index(key.name)].setStyleSheet(css)
+                    self.key_count_list[self.key_name.index(key.name)].setStyleSheet(css)
+                    css = f'background-color: {self.settings["color"]["mainColor"]};'
                     self.key_block_list[self.key_name.index(key.name)].setStyleSheet(css)
                     self.key_count_list[self.key_name.index(key.name)].setText(str(self.counter[self.key_name.index(key.name)]))
             self.token = False
@@ -114,19 +118,19 @@ class SenaKps(QtWidgets.QWidget):
     def on_release(self, key):
         if hasattr(key, 'char'):
             if key.char in self.key_name:
-                self.key_symbol_list[self.key_name.index(key.char)].setStyleSheet('font-size: 25px; font-weight:bold; color: #9999ff;')
-                self.key_count_list[self.key_name.index(key.char)].setStyleSheet('font-size: 25px; font-weight:bold; color: #9999ff;')
-                css = f'''QWidget#container{self.key_name.index(key.char)}{{ border: 2px solid #9999ff; background-color: black; }}'''
+                self.key_symbol_list[self.key_name.index(key.char)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
+                self.key_count_list[self.key_name.index(key.char)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
+                css = f'''QWidget#container{self.key_name.index(key.char)}{{ border: 2px solid {self.settings["color"]["mainColor"]}; background-color: {self.settings["color"]["backgroundColor"]}; }}'''
                 self.key_block_list[self.key_name.index(key.char)].setStyleSheet(css)
         if hasattr(key, 'name'):
             if key.name in self.key_name:
-                self.key_symbol_list[self.key_name.index(key.name)].setStyleSheet('font-size: 25px; font-weight:bold; color: #9999ff;')
-                self.key_count_list[self.key_name.index(key.name)].setStyleSheet('font-size: 25px; font-weight:bold; color: #9999ff;')
-                css = f'''QWidget#container{self.key_name.index(key.name)}{{ border: 2px solid #9999ff; background-color: black; }}'''
+                self.key_symbol_list[self.key_name.index(key.name)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
+                self.key_count_list[self.key_name.index(key.name)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
+                css = f'''QWidget#container{self.key_name.index(key.name)}{{ border: 2px solid {self.settings["color"]["mainColor"]}; background-color: {self.settings["color"]["backgroundColor"]}; }}'''
                 self.key_block_list[self.key_name.index(key.name)].setStyleSheet(css)
         self.token = True
 
-class KeyboardListener(QObject):
+class KeyListener(QObject):
     on_press_signal = pyqtSignal(object)
     on_release_signal = pyqtSignal(object)
     
