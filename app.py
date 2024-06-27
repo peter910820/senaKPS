@@ -1,12 +1,15 @@
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QMessageBox, QScrollArea, QDoubleSpinBox, 
+    QVBoxLayout, QHBoxLayout, QSizePolicy, QPushButton, 
+    QColorDialog, QLabel
+)
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
 import sys, json
 from pynput import keyboard
 import threading
 
-class SenaKps(QtWidgets.QWidget):
+class SenaKps(QWidget):
     def __init__(self):
         super().__init__()
         # slots and threads(handle pynput listener)
@@ -60,11 +63,11 @@ class SenaKps(QtWidgets.QWidget):
         event.accept()
 
     def ui(self):
-        hbox = QtWidgets.QWidget(self)
+        hbox = QWidget(self)
         hbox.setGeometry(0,0,60*self.key_amount,90)
         css = f'background-color: {self.settings["color"]["backgroundColor"]}'
         hbox.setStyleSheet(css)
-        h_layout = QtWidgets.QHBoxLayout(hbox)
+        h_layout = QHBoxLayout(hbox)
         h_layout.setContentsMargins(3, 5, 3, 5)
 
         for i in range(1,self.key_amount + 1):
@@ -72,7 +75,7 @@ class SenaKps(QtWidgets.QWidget):
             h_layout.addWidget(key_block)
 
     def create_keyblock(self, symbol_index):
-        container = QtWidgets.QWidget(self)
+        container = QWidget(self)
         id_name = f'container{symbol_index}'
         css = f'''
         QWidget#{id_name}{{ border: 2px solid {self.settings["color"]["mainColor"]}; }}
@@ -80,16 +83,16 @@ class SenaKps(QtWidgets.QWidget):
         '''
         container.setObjectName(id_name)
         container.setStyleSheet(css)
-        container_layout = QtWidgets.QVBoxLayout(container)
+        container_layout = QVBoxLayout(container)
 
-        div_up = QtWidgets.QLabel(self)
+        div_up = QLabel(self)
         div_up.setText(self.key_symbol[symbol_index])
-        div_up.setAlignment(QtCore.Qt.AlignCenter)
+        div_up.setAlignment(Qt.AlignCenter)
         container_layout.addWidget(div_up)
         self.key_symbol_list.append(div_up)
-        div_dw = QtWidgets.QLabel(self)
+        div_dw = QLabel(self)
         div_dw.setText(str(0))
-        div_dw.setAlignment(QtCore.Qt.AlignCenter)
+        div_dw.setAlignment(Qt.AlignCenter)
         container_layout.addWidget(div_dw)
 
         self.key_count_list.append(div_dw)
@@ -159,7 +162,7 @@ class KeyListener(QObject):
         self.on_release_signal.emit(key)
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     mainwindow = SenaKps()
     mainwindow.show()
     sys.exit(app.exec_())

@@ -1,6 +1,5 @@
-from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import (
-    QWidget, QMessageBox, QScrollArea, 
+    QApplication, QWidget, QMessageBox, QScrollArea, QDoubleSpinBox, 
     QVBoxLayout, QHBoxLayout, QSizePolicy, QPushButton, 
     QColorDialog, QLabel
 )
@@ -10,7 +9,7 @@ import sys
 from pynput import keyboard
 import threading
 
-class SenaKpsSetting(QtWidgets.QWidget):
+class SenaKpsSetting(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -23,16 +22,16 @@ class SenaKpsSetting(QtWidgets.QWidget):
         self.ui()
 
     def ui(self):
-        vbox = QtWidgets.QWidget(self)
+        vbox = QWidget(self)
         vbox.setGeometry(0, 0, 335, 300)
-        self.v_layout = QtWidgets.QVBoxLayout(vbox)
+        self.v_layout = QVBoxLayout(vbox)
         new_key = QPushButton('create new key', self)
         new_key.clicked.connect(self.new_key_click)
         
         self.create_key_area()
 
         hbox = QWidget(self)
-        h_layout = QtWidgets.QHBoxLayout(hbox)
+        h_layout = QHBoxLayout(hbox)
         h_layout.setContentsMargins(0, 0, 0, 0)
         backgroundColor = QPushButton('backgroundColor', self)
         backgroundColor.clicked.connect(lambda: self.color_click(False))
@@ -51,7 +50,7 @@ class SenaKpsSetting(QtWidgets.QWidget):
         h_layout.addWidget(mainColor, 4)
         h_layout.addWidget(self.mainColor_color, 1)
 
-        opacity = QtWidgets.QDoubleSpinBox(self)
+        opacity = QDoubleSpinBox(self)
         opacity.setDecimals(1)
         opacity.setRange(0, 1)
         opacity.setSingleStep(0.1)
@@ -68,11 +67,11 @@ class SenaKpsSetting(QtWidgets.QWidget):
 
     def create_key_area(self):
         self.key_table = QWidget(self)
-        self.key_table_layout = QtWidgets.QVBoxLayout(self.key_table)
+        self.key_table_layout = QVBoxLayout(self.key_table)
         self.key_table_layout.setAlignment(Qt.AlignTop)
 
         key_block = QWidget(self)
-        key_block_layout = QtWidgets.QHBoxLayout(key_block)
+        key_block_layout = QHBoxLayout(key_block)
         key_block_layout.setContentsMargins(0, 0, 0, 0)
         key_block_symbol = QLabel(self)
         key_block_symbol.setText('Symbol')
@@ -113,7 +112,7 @@ class SenaKpsSetting(QtWidgets.QWidget):
     @pyqtSlot(str)
     def accept_data(self, key):
         key_block = QWidget(self)
-        key_block_layout = QtWidgets.QHBoxLayout(key_block)
+        key_block_layout = QHBoxLayout(key_block)
         key_block_layout.setContentsMargins(0, 0, 0, 0)
         key_block_symbol = QLabel(self)
         key_block_symbol.setText(key)
@@ -133,8 +132,8 @@ class SenaKpsSetting(QtWidgets.QWidget):
     def remove_button_click(self):
         print('哈哈我還沒做拉')
 
-class KeySet(QtWidgets.QWidget):
-    accept_data = QtCore.pyqtSignal(str)
+class KeySet(QWidget):
+    accept_data = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -151,14 +150,14 @@ class KeySet(QtWidgets.QWidget):
         self.ui()
 
     def ui(self):
-        vbox = QtWidgets.QWidget(self)
+        vbox = QWidget(self)
         vbox.setGeometry(0, 0, 300, 300)
-        v_layout = QtWidgets.QVBoxLayout(vbox)
-        self.key_show = QtWidgets.QLabel(self)
+        v_layout = QVBoxLayout(vbox)
+        self.key_show = QLabel(self)
         self.key_show.setText('press any key')
         css = 'border: 2px solid black; font-size: 20px;'
         self.key_show.setStyleSheet(css)
-        self.key_show.setAlignment(QtCore.Qt.AlignCenter)
+        self.key_show.setAlignment(Qt.AlignCenter)
         self.key_show.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         v_layout.addWidget(self.key_show, 9)
         ok_button = QPushButton('OK', self)
@@ -199,7 +198,7 @@ class KeyListener(QObject):
         self.on_press_signal.emit(key)
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     mainwindow = SenaKpsSetting()
     mainwindow.show()
     sys.exit(app.exec_())
