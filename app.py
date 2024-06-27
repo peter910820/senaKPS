@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
 import sys, json
@@ -47,6 +48,15 @@ class SenaKps(QtWidgets.QWidget):
     #     pixmap = pixmap.scaled(self.size())
 
     #     painter.drawPixmap(self.rect(), pixmap)
+
+    #close windows event
+    def closeEvent(self, event):
+        record = open('record.senakps', 'w', encoding='utf-8')
+        record.write('@keyClick\n')
+        for index, symbol in enumerate(self.key_symbol):
+            record.write(f'{symbol}: {str(self.counter[index])} click\n')
+        record.close()
+        event.accept()
 
     def ui(self):
         hbox = QtWidgets.QWidget(self)
