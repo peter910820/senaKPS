@@ -16,8 +16,6 @@ class SenaKps(QtWidgets.QWidget):
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
         #variable
-        self.key_amount = 6
-        self.counter = [0] * self.key_amount 
         self.key_symbol = []
         self.key_name = []
         self.key_block_list = []
@@ -30,12 +28,15 @@ class SenaKps(QtWidgets.QWidget):
         for i in self.settings['keyEvent']:
             self.key_symbol.append(i['keySymbol'])
             self.key_name.append(i['key'])
+        #change key amount
+        self.key_amount = len(self.key_symbol)
+        self.counter = [0] * self.key_amount
         #mainwindow settings
         self.setObjectName("senaKPS")
         self.setWindowTitle('senaKPS')
         self.setWindowOpacity(self.settings['opacity'])
-        self.resize(355, 90)
-        self.setFixedSize(355, 90)
+        self.resize(60*self.key_amount, 90)
+        self.setFixedSize(60*self.key_amount, 90)
         # self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True) #預設透明
         # self.setWindowFlags(QtCore.Qt.FramelessWindowHint) #無邊框
         #create ui
@@ -60,7 +61,7 @@ class SenaKps(QtWidgets.QWidget):
 
     def ui(self):
         hbox = QtWidgets.QWidget(self)
-        hbox.setGeometry(0,0,355,90)
+        hbox.setGeometry(0,0,60*self.key_amount,90)
         css = f'background-color: {self.settings["color"]["backgroundColor"]}'
         hbox.setStyleSheet(css)
         h_layout = QtWidgets.QHBoxLayout(hbox)

@@ -6,4 +6,6 @@ a key record app for all people.
 
 change settings.json settings to count key press.
 
-06/27 now can record number of clicks to .senakps file
+06/27:
+* now can add keyEvent to record more keys
+* now can record number of clicks to .senakps file

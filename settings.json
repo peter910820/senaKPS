@@ -23,11 +23,23 @@
         {
             "keySymbol": "e",
             "key": "e"
+        },
+        {
+            "keySymbol": "r",
+            "key": "r"
+        },
+        {
+            "keySymbol": "t",
+            "key": "t"
+        },
+        {
+            "keySymbol": "y",
+            "key": "y"
         }
     ],
     "color":{
         "backgroundColor": "black",
-        "mainColor": "pink"
+        "mainColor": "green"
     },
-    "opacity": 0.8
+    "opacity": 0.9
 }
