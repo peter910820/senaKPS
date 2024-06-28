@@ -5,7 +5,9 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
-import sys
+import sys, json
+from decimal import Decimal
+
 from pynput import keyboard
 import threading
 
@@ -19,10 +21,25 @@ class SenaKpsSetting(QWidget):
         self.resize(335, 300)
         self.setFixedSize(335, 300)
         self.table_index = 0
+
         self.key_block_index = 0
-        self.key_block_list = []
+        self.key_block_list = {}
+
+        self.key_block_symbol_list = {}
+        self.key_block_key_list = {}
+
+        self.mainColor = 'pink'
+        self.backgroundColor = 'black'
+
+        self.symbol_translate()
         self.ui()
 
+    def symbol_translate(self):
+        symbol_table_file = open('./symbol-file.json', 'r', encoding='utf-8')
+        self.symbol_table = json.load(symbol_table_file)
+        print(self.symbol_table)
+        symbol_table_file.close()
+        
     def ui(self):
         vbox = QWidget(self)
         vbox.setGeometry(0, 0, 335, 300)
@@ -38,11 +55,11 @@ class SenaKpsSetting(QWidget):
         backgroundColor = QPushButton('backgroundColor', self)
         backgroundColor.clicked.connect(lambda: self.color_click(False))
         self.backgroundColor_color = QLabel(self)
-        self.backgroundColor_color.setStyleSheet('background-color: white')
+        self.backgroundColor_color.setStyleSheet(f'background-color: {self.backgroundColor}')
         mainColor = QPushButton('mainColor', self)
         mainColor.clicked.connect(lambda: self.color_click(True))
         self.mainColor_color = QLabel(self)
-        self.mainColor_color.setStyleSheet('background-color: white')
+        self.mainColor_color.setStyleSheet(f'background-color: {self.mainColor}')
         backgroundColor.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.backgroundColor_color.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         mainColor.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -51,21 +68,21 @@ class SenaKpsSetting(QWidget):
         h_layout.addWidget(self.backgroundColor_color, 1)
         h_layout.addWidget(mainColor, 4)
         h_layout.addWidget(self.mainColor_color, 1)
+        #opacity block
+        self.opacity = QDoubleSpinBox(self)
+        self.opacity.setDecimals(1)
+        self.opacity.setRange(0, 1)
+        self.opacity.setSingleStep(0.1)
+        self.opacity.setValue(1.0)
 
-        opacity = QDoubleSpinBox(self)
-        opacity.setDecimals(1)
-        opacity.setRange(0, 1)
-        opacity.setSingleStep(0.1)
-        opacity.setValue(1.0)
-
-        ok_key = QPushButton('OK', self)
-        ok_key.clicked.connect(self.ok_key_click)
+        save_settings = QPushButton('OK', self)
+        save_settings.clicked.connect(self.save_settings_click)
 
         self.v_layout.addWidget(new_key, alignment=Qt.AlignTop)
         self.v_layout.addWidget(self.scroll_area)
         self.v_layout.addWidget(hbox)
-        self.v_layout.addWidget(opacity)
-        self.v_layout.addWidget(ok_key)
+        self.v_layout.addWidget(self.opacity)
+        self.v_layout.addWidget(save_settings)
 
     def create_key_area(self):
         self.key_table = QWidget(self)
@@ -99,16 +116,35 @@ class SenaKpsSetting(QWidget):
         self.key_set.accept_data.connect(self.accept_data)
         self.key_set.show()
 
-    def ok_key_click(self):
-        pass
+    def save_settings_click(self):
+        setting_file = open('./settings.json', 'w', encoding='utf-8')
+        tmp = {
+            "keyEvent":[],
+            "color": {
+                "backgroundColor": f"{self.backgroundColor}",
+                "mainColor": f"{self.mainColor}"
+            },
+            "opacity": round(self.opacity.value(), 1)
+        }
+        for keys, values in self.key_block_symbol_list.items():
+            tmp['keyEvent'].append({
+                "keySymbol": values.text(),
+                "key": self.key_block_key_list[keys].text()
+            })
+        y = json.dumps(tmp)
+        setting_file.write(y)
+        setting_file.close()
+        self.close()
 
     def color_click(self, judge):
         color = QColorDialog().getColor()
         print(color.name())
         if judge:
             self.mainColor_color.setStyleSheet(f'background-color: {color.name()}')
+            self.mainColor = color.name()
         else:
             self.backgroundColor_color.setStyleSheet(f'background-color: {color.name()}')
+            self.backgroundColor = color.name()
 
         
     @pyqtSlot(str)
@@ -118,19 +154,25 @@ class SenaKpsSetting(QWidget):
         key_block_layout = QHBoxLayout(key_block)
         key_block_layout.setContentsMargins(0, 0, 0, 0)
         key_block_symbol = QLabel(self)
-        key_block_symbol.setText(key)
+        if key in self.symbol_table:
+            key_block_symbol.setText(self.symbol_table[key])
+        else:
+            key_block_symbol.setText(key)
         key_block_key = QLabel(self)
         key_block_key.setText(key)
         key_block_remove = QPushButton('remove')
-        key_block_remove.clicked.connect(lambda: self.remove_button_click(index))
+        key_block_remove.clicked.connect(lambda: self.remove_button_click(str(index)))
         key_block_symbol.setAlignment(Qt.AlignCenter)
         key_block_key.setAlignment(Qt.AlignCenter)
         key_block_layout.addWidget(key_block_symbol)
         key_block_layout.addWidget(key_block_key)
         key_block_layout.addWidget(key_block_remove)
         key_block.setFixedHeight(20)
-        
-        self.key_block_list.append(key_block)
+
+        self.key_block_symbol_list[str(index)] = key_block_symbol
+        self.key_block_key_list[str(index)] = key_block_key
+        self.key_block_list[str(index)] = key_block
+
         self.key_table_layout.addWidget(key_block)
         self.scroll_area.setWidget(self.key_table)
 
@@ -139,6 +181,8 @@ class SenaKpsSetting(QWidget):
     def remove_button_click(self, index):
         self.key_table_layout.removeWidget(self.key_block_list[index])
         self.key_block_list[index].deleteLater()
+        self.key_block_list.pop(index, None)
+        print(f'key_block_list size: {len(self.key_block_list)}')
 
 class KeySet(QWidget):
     accept_data = pyqtSignal(str)
@@ -150,7 +194,7 @@ class KeySet(QWidget):
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
 
-        self.key = ""
+        self.key = ''
 
         self.setWindowTitle('key set')
         self.resize(300, 300)
