@@ -19,6 +19,8 @@ class SenaKpsSetting(QWidget):
         self.resize(335, 300)
         self.setFixedSize(335, 300)
         self.table_index = 0
+        self.key_block_index = 0
+        self.key_block_list = []
         self.ui()
 
     def ui(self):
@@ -111,6 +113,7 @@ class SenaKpsSetting(QWidget):
         
     @pyqtSlot(str)
     def accept_data(self, key):
+        index = self.key_block_index
         key_block = QWidget(self)
         key_block_layout = QHBoxLayout(key_block)
         key_block_layout.setContentsMargins(0, 0, 0, 0)
@@ -119,18 +122,23 @@ class SenaKpsSetting(QWidget):
         key_block_key = QLabel(self)
         key_block_key.setText(key)
         key_block_remove = QPushButton('remove')
+        key_block_remove.clicked.connect(lambda: self.remove_button_click(index))
         key_block_symbol.setAlignment(Qt.AlignCenter)
         key_block_key.setAlignment(Qt.AlignCenter)
         key_block_layout.addWidget(key_block_symbol)
         key_block_layout.addWidget(key_block_key)
         key_block_layout.addWidget(key_block_remove)
         key_block.setFixedHeight(20)
-
+        
+        self.key_block_list.append(key_block)
         self.key_table_layout.addWidget(key_block)
         self.scroll_area.setWidget(self.key_table)
 
-    def remove_button_click(self):
-        print('哈哈我還沒做拉')
+        self.key_block_index += 1
+
+    def remove_button_click(self, index):
+        self.key_table_layout.removeWidget(self.key_block_list[index])
+        self.key_block_list[index].deleteLater()
 
 class KeySet(QWidget):
     accept_data = pyqtSignal(str)
