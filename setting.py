@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QMessageBox, QScrollArea, QDoubleSpinBox, 
     QVBoxLayout, QHBoxLayout, QSizePolicy, QPushButton, 
-    QColorDialog, QLabel
+    QColorDialog, QLabel, QFileDialog
 )
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
@@ -12,7 +12,6 @@ from pynput import keyboard
 import threading
 
 class SenaKpsSetting(QWidget):
-
     def __init__(self):
         super().__init__()
         #mainwindow settings
@@ -23,27 +22,32 @@ class SenaKpsSetting(QWidget):
         self.table_index = 0
 
         self.key_block_index = 0
-        self.key_block_list = {}
 
-        self.key_block_symbol_list = {}
-        self.key_block_key_list = {}
+        self.key_block_list, self.key_block_symbol_list, self.key_block_key_list = {}, {}, {}
 
-        self.mainColor = 'pink'
-        self.backgroundColor = 'black'
+        self.mainColor, self.backgroundColor = 'pink', 'black'
 
-        self.symbol_translate()
+        self.settings = None
+
+        self.symbol_table = SymbolTranslate().get_symbol_table()
         self.ui()
-
-    def symbol_translate(self):
-        symbol_table_file = open('./symbol-file.json', 'r', encoding='utf-8')
-        self.symbol_table = json.load(symbol_table_file)
-        print(self.symbol_table)
-        symbol_table_file.close()
         
     def ui(self):
         vbox = QWidget(self)
         vbox.setGeometry(0, 0, 335, 300)
         self.v_layout = QVBoxLayout(vbox)
+
+        hbox_settings = QWidget(self)
+        hbox_settings_layout = QHBoxLayout(hbox_settings)
+        hbox_settings_layout.setContentsMargins(0, 0, 0, 0)
+
+        load_settings = QPushButton('load settings', self)
+        load_settings.clicked.connect(self.load_settings_click)
+        save_settings = QPushButton('save settings', self)
+        save_settings.clicked.connect(self.save_settings_click)
+        hbox_settings_layout.addWidget(load_settings)
+        hbox_settings_layout.addWidget(save_settings)
+
         new_key = QPushButton('create new key', self)
         new_key.clicked.connect(self.new_key_click)
         
@@ -60,6 +64,7 @@ class SenaKpsSetting(QWidget):
         mainColor.clicked.connect(lambda: self.color_click(True))
         self.mainColor_color = QLabel(self)
         self.mainColor_color.setStyleSheet(f'background-color: {self.mainColor}')
+        
         backgroundColor.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.backgroundColor_color.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         mainColor.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -76,8 +81,9 @@ class SenaKpsSetting(QWidget):
         self.opacity.setValue(1.0)
 
         save_settings = QPushButton('OK', self)
-        save_settings.clicked.connect(self.save_settings_click)
+        save_settings.clicked.connect(self.ok_save)
 
+        self.v_layout.addWidget(hbox_settings)
         self.v_layout.addWidget(new_key, alignment=Qt.AlignTop)
         self.v_layout.addWidget(self.scroll_area)
         self.v_layout.addWidget(hbox)
@@ -116,7 +122,64 @@ class SenaKpsSetting(QWidget):
         self.key_set.accept_data.connect(self.accept_data)
         self.key_set.show()
 
-    def save_settings_click(self):
+    def load_settings_click(self):
+        filePath, _ = QFileDialog.getOpenFileName(filter='JSON (*.json)')
+        try:
+            settings_file = open(filePath, 'r', encoding='utf-8')
+            self.settings = json.load(settings_file)
+            settings_file.close()
+            print(self.settings)
+        except:
+            print('open file error!')
+        self.mapping()
+
+    def save_settings_click(self):  
+        pass
+
+    def mapping(self):
+        try:
+            self.opacity.setValue(self.settings['opacity'])
+            self.backgroundColor = self.settings['color']['backgroundColor']
+            self.mainColor = self.settings['color']['mainColor']
+            self.backgroundColor_color.setStyleSheet(f'background-color: {self.backgroundColor}')
+            self.mainColor_color.setStyleSheet(f'background-color: {self.mainColor}')
+
+            self.key_block_index = 0
+            for index in self.key_block_list:
+                self.key_table_layout.removeWidget(self.key_block_list[index])
+                self.key_block_list[index].deleteLater()
+            self.key_block_list, self.key_block_symbol_list, self.key_block_key_list = {}, {}, {}
+            
+            for i in self.settings['keyEvent']:
+                index = self.key_block_index
+                key_block = QWidget(self)
+                key_block_layout = QHBoxLayout(key_block)
+                key_block_layout.setContentsMargins(0, 0, 0, 0)
+                key_block_symbol = QLabel(self)
+                key_block_symbol.setText(i['keySymbol'])
+                key_block_key = QLabel(self)
+                key_block_key.setText(i['key'])
+                key_block_remove = QPushButton('remove')
+                key_block_remove.clicked.connect(lambda state, idx=index: self.remove_button_click(str(idx)))
+                key_block_symbol.setAlignment(Qt.AlignCenter)
+                key_block_key.setAlignment(Qt.AlignCenter)
+                key_block_layout.addWidget(key_block_symbol)
+                key_block_layout.addWidget(key_block_key)
+                key_block_layout.addWidget(key_block_remove)
+                key_block.setFixedHeight(20)
+
+                self.key_block_symbol_list[str(index)] = key_block_symbol
+                self.key_block_key_list[str(index)] = key_block_key
+                self.key_block_list[str(index)] = key_block
+
+                self.key_table_layout.addWidget(key_block)
+                self.scroll_area.setWidget(self.key_table)
+
+                self.key_block_index += 1
+        except:
+            print('format error!')
+        
+    def ok_save(self):
         setting_file = open('./settings.json', 'w', encoding='utf-8')
         tmp = {
             "keyEvent":[],
@@ -146,7 +209,6 @@ class SenaKpsSetting(QWidget):
             self.backgroundColor_color.setStyleSheet(f'background-color: {color.name()}')
             self.backgroundColor = color.name()
 
-        
     @pyqtSlot(str)
     def accept_data(self, key):
         index = self.key_block_index
@@ -182,7 +244,19 @@ class SenaKpsSetting(QWidget):
         self.key_table_layout.removeWidget(self.key_block_list[index])
         self.key_block_list[index].deleteLater()
         self.key_block_list.pop(index, None)
+        self.key_block_symbol_list.pop(index, None)
+        self.key_block_key_list.pop(index, None)
         print(f'key_block_list size: {len(self.key_block_list)}')
+
+class SymbolTranslate():
+    def __init__(self) -> None:
+        symbol_table_file = open('./symbol-file.json', 'r', encoding='utf-8')
+        self.symbol_table = json.load(symbol_table_file)
+        print(self.symbol_table)
+        symbol_table_file.close()
+
+    def get_symbol_table(self):
+        return self.symbol_table
 
 class KeySet(QWidget):
     accept_data = pyqtSignal(str)

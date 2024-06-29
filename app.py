@@ -55,7 +55,7 @@ class SenaKps(QWidget):
 
     #close windows event
     def closeEvent(self, event):
-        record = open('record.senakps', 'w', encoding='utf-8')
+        record = open('./record.senakps', 'w', encoding='utf-8')
         record.write('@keyClick\n')
         for index, symbol in enumerate(self.key_symbol):
             record.write(f'{symbol}: {str(self.counter[index])} click\n')
@@ -71,8 +71,7 @@ class SenaKps(QWidget):
         h_layout.setContentsMargins(3, 5, 3, 5)
 
         for i in range(1,self.key_amount + 1):
-            key_block = self.create_keyblock(i-1)
-            h_layout.addWidget(key_block)
+            h_layout.addWidget(self.create_keyblock(i-1))
 
     def create_keyblock(self, symbol_index):
         container = QWidget(self)
