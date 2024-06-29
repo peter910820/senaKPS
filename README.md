@@ -9,6 +9,7 @@ change settings.json settings to count key press.
 alpha version: add setting gui(create key press record to setting senaKPS)
 
 06/29:
+* add save settings method.
 * add load settings method.
 
 06/28:

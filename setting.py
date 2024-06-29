@@ -80,15 +80,16 @@ class SenaKpsSetting(QWidget):
         self.opacity.setSingleStep(0.1)
         self.opacity.setValue(1.0)
 
-        save_settings = QPushButton('OK', self)
-        save_settings.clicked.connect(self.ok_save)
+        main_start = QPushButton('OK', self)
+        main_start.clicked.connect(self.main_start_click)
+        main_start.setEnabled(False)
 
         self.v_layout.addWidget(hbox_settings)
         self.v_layout.addWidget(new_key, alignment=Qt.AlignTop)
         self.v_layout.addWidget(self.scroll_area)
         self.v_layout.addWidget(hbox)
         self.v_layout.addWidget(self.opacity)
-        self.v_layout.addWidget(save_settings)
+        self.v_layout.addWidget(main_start)
 
     def create_key_area(self):
         self.key_table = QWidget(self)
@@ -125,16 +126,41 @@ class SenaKpsSetting(QWidget):
     def load_settings_click(self):
         filePath, _ = QFileDialog.getOpenFileName(filter='JSON (*.json)')
         try:
-            settings_file = open(filePath, 'r', encoding='utf-8')
-            self.settings = json.load(settings_file)
-            settings_file.close()
-            print(self.settings)
+            if filePath:
+                settings_file = open(filePath, 'r', encoding='utf-8')
+                self.settings = json.load(settings_file)
+                settings_file.close()
+                print(self.settings)
+                self.mapping()
+            else:
+                print('cancel loading file!')
         except:
             print('open file error!')
-        self.mapping()
 
-    def save_settings_click(self):  
-        pass
+    def save_settings_click(self):
+        filePath, _ = QFileDialog.getSaveFileName(filter='JSON (*.json)')
+        if filePath:
+            setting_file = open(filePath, 'w', encoding='utf-8')
+            tmp = {
+                "keyEvent":[],
+                "color": {
+                    "backgroundColor": f"{self.backgroundColor}",
+                    "mainColor": f"{self.mainColor}"
+                },
+                "opacity": round(self.opacity.value(), 1)
+            }
+            for keys, values in self.key_block_symbol_list.items():
+                tmp['keyEvent'].append({
+                    "keySymbol": values.text(),
+                    "key": self.key_block_key_list[keys].text()
+                })
+            y = json.dumps(tmp)
+            setting_file.write(y)
+            setting_file.close()
+            save_message = QMessageBox(self)
+            save_message.information(self, 'message', 'save complete!')
+        else:
+            print('cancel saving file!')
 
     def mapping(self):
         try:
@@ -178,26 +204,8 @@ class SenaKpsSetting(QWidget):
                 self.key_block_index += 1
         except:
             print('format error!')
-        
-    def ok_save(self):
-        setting_file = open('./settings.json', 'w', encoding='utf-8')
-        tmp = {
-            "keyEvent":[],
-            "color": {
-                "backgroundColor": f"{self.backgroundColor}",
-                "mainColor": f"{self.mainColor}"
-            },
-            "opacity": round(self.opacity.value(), 1)
-        }
-        for keys, values in self.key_block_symbol_list.items():
-            tmp['keyEvent'].append({
-                "keySymbol": values.text(),
-                "key": self.key_block_key_list[keys].text()
-            })
-        y = json.dumps(tmp)
-        setting_file.write(y)
-        setting_file.close()
-        self.close()
+
+    def main_start_click(self): pass
 
     def color_click(self, judge):
         color = QColorDialog().getColor()
