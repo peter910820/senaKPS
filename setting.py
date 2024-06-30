@@ -6,10 +6,11 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
 import sys, json
-from decimal import Decimal
 
 from pynput import keyboard
 import threading
+
+from SenakpsModules import symbol_translate
 
 class SenaKpsSetting(QWidget):
     def __init__(self):

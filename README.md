@@ -8,6 +8,9 @@ change settings.json settings to count key press.
 
 alpha version: add setting gui(create key press record to setting senaKPS)
 
+07/01:
+* fix sleep mode path cannot be obtained bug.
+
 06/29:
 * add save settings method.
 * add load settings method.
@@ -18,6 +21,3 @@ alpha version: add setting gui(create key press record to setting senaKPS)
 06/27:
 * now can add keyEvent to record more keys
 * now can record number of clicks to .senakps file
-
-TODO:
-closeEvent 休眠狀態會有bug(找不到路徑)

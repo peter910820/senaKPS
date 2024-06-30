@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
-import sys, json
+import sys, json, os
 from pynput import keyboard
 import threading
 
@@ -55,7 +55,7 @@ class SenaKps(QWidget):
 
     #close windows event
     def closeEvent(self, event):
-        record = open('./record.senakps', 'w', encoding='utf-8')
+        record = open(os.path.join(os.getcwd(),'record.senakps'), 'w', encoding='utf-8')
         record.write('@keyClick\n')
         for index, symbol in enumerate(self.key_symbol):
             record.write(f'{symbol}: {str(self.counter[index])} click\n')
