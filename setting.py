@@ -10,7 +10,7 @@ import sys, json
 from pynput import keyboard
 import threading
 
-from SenakpsModules import symbol_translate
+from SenakpsModules import file_handler
 
 class SenaKpsSetting(QWidget):
     def __init__(self):
@@ -30,7 +30,7 @@ class SenaKpsSetting(QWidget):
 
         self.settings = None
 
-        self.symbol_table = SymbolTranslate().get_symbol_table()
+        self.symbol_table = file_handler.SymbolTranslate().get_symbol_table()
         self.ui()
         
     def ui(self):
@@ -256,16 +256,6 @@ class SenaKpsSetting(QWidget):
         self.key_block_symbol_list.pop(index, None)
         self.key_block_key_list.pop(index, None)
         print(f'key_block_list size: {len(self.key_block_list)}')
-
-class SymbolTranslate():
-    def __init__(self) -> None:
-        symbol_table_file = open('./symbol-file.json', 'r', encoding='utf-8')
-        self.symbol_table = json.load(symbol_table_file)
-        print(self.symbol_table)
-        symbol_table_file.close()
-
-    def get_symbol_table(self):
-        return self.symbol_table
 
 class KeySet(QWidget):
     accept_data = pyqtSignal(str)

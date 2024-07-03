@@ -2,5 +2,12 @@
     "enter": "↵",
     "space": "□",
     "page_up": "⭡",
-    "page_down": "⭣"
+    "page_down": "⭣",
+    "backspace": "↼",
+    "caps_lock": "🔒",
+    "delete": "del",
+    "down": "dw",
+    "home": "🏠",
+    "insert": "ins",
+    "print_screen": "📷"
 }

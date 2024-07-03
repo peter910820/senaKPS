@@ -52,16 +52,6 @@ class SenaKps(QWidget):
     #     pixmap = pixmap.scaled(self.size())
 
     #     painter.drawPixmap(self.rect(), pixmap)
-
-    #close windows event
-    def closeEvent(self, event):
-        record = open(os.path.join(os.getcwd(),'record.senakps'), 'w', encoding='utf-8')
-        record.write('@keyClick\n')
-        for index, symbol in enumerate(self.key_symbol):
-            record.write(f'{symbol}: {str(self.counter[index])} click\n')
-        record.close()
-        event.accept()
-
     def ui(self):
         hbox = QWidget(self)
         hbox.setGeometry(0,0,60*self.key_amount,90)
@@ -72,6 +62,14 @@ class SenaKps(QWidget):
 
         for i in range(1,self.key_amount + 1):
             h_layout.addWidget(self.create_keyblock(i-1))
+    #close windows event
+    def closeEvent(self, event):
+        record = open(os.path.join(os.getcwd(),'record.senakps'), 'w', encoding='utf-8')
+        record.write('@keyClick\n')
+        for index, symbol in enumerate(self.key_symbol):
+            record.write(f'{symbol}: {str(self.counter[index])} click\n')
+        record.close()
+        event.accept()
 
     def create_keyblock(self, symbol_index):
         container = QWidget(self)
