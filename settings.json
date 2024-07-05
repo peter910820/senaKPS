@@ -1,1 +1,1 @@
-{"keyEvent": [{"keySymbol": "\u21b5", "key": "enter"}], "color": {"backgroundColor": "black", "mainColor": "pink"}, "opacity": 1.0}
+{"keyEvent": [{"keySymbol": "\u21b5", "key": "enter"}, {"keySymbol": "\u2b61", "key": "page_up"}, {"keySymbol": "\u2b63", "key": "page_down"}], "color": {"backgroundColor": "black", "mainColor": "#80e1ff"}, "opacity": 0.9}

@@ -12,4 +12,4 @@ class SymbolTranslate():
     
 class senakps_file_handler():
     def __init__(self) -> None:
-        pass
+        record_file = open('./record.senakps', 'r', encoding='utf-8')

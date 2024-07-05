@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QMessageBox, QScrollArea, QDoubleSpinBox, 
     QVBoxLayout, QHBoxLayout, QSizePolicy, QPushButton, 
-    QColorDialog, QLabel
+    QColorDialog, QLabel, QFileDialog
 )
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
@@ -26,11 +26,20 @@ class SenaKps(QWidget):
         self.key_count_list = []
         self.token = True
         # load settings
-        jsonFile = open('./settings.json', 'r', encoding='utf-8')
-        self.settings = json.load(jsonFile)
-        for i in self.settings['keyEvent']:
-            self.key_symbol.append(i['keySymbol'])
-            self.key_name.append(i['key'])
+        filePath, _ = QFileDialog.getOpenFileName(filter='JSON (*.json)')
+        try:
+            if filePath:
+                jsonFile = open(filePath, 'r', encoding='utf-8')
+                self.settings = json.load(jsonFile)
+                for i in self.settings['keyEvent']:
+                    self.key_symbol.append(i['keySymbol'])
+                    self.key_name.append(i['key'])
+            else:
+                print('cancel loading file!')
+                self.close()
+        except:
+            print('open file error!')
+            self.close()
         #change key amount
         self.key_amount = len(self.key_symbol)
         self.counter = [0] * self.key_amount
