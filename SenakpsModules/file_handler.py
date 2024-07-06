@@ -9,7 +9,3 @@ class SymbolTranslate():
 
     def get_symbol_table(self):
         return self.symbol_table
-    
-class senakps_file_handler():
-    def __init__(self) -> None:
-        record_file = open('./record.senakps', 'r', encoding='utf-8')

@@ -2,11 +2,14 @@
 
 a key record app for all people.
 
-![cover](/app-main.png)
+![cover](img/cover2.png)
+
+![cover](img/cover.png)
 
 change settings.json settings to count key press.
 
-alpha version: add setting gui(create key press record to setting senaKPS)
+07/06:
+* now can load senakps file and record key press counter.
 
 07/01:
 * fix sleep mode path cannot be obtained bug.

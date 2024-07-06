@@ -43,6 +43,25 @@ class SenaKps(QWidget):
         #change key amount
         self.key_amount = len(self.key_symbol)
         self.counter = [0] * self.key_amount
+        #load senakps file
+        try:
+            self.snakps_route, _ = QFileDialog.getOpenFileName(filter='SENAKPS FILE (*.senakps)')
+
+            record = open(self.snakps_route, 'r', encoding='utf-8')
+            tmp  = record.read()
+            tmp = tmp.split('@')[1].split('\n')
+            amount = {}
+            for _ in tmp:
+                if _ == 'keyClick' or _ == '':
+                    continue
+                _ = _.split((':'))
+                amount[_[0]] = _[1]
+                if _[0] in self.key_symbol:
+                    self.counter[self.key_symbol.index(_[0])] = self.counter[self.key_symbol.index(_[0])] + int(_[1])
+        except:
+            print('senakps file is new or has error!')
+            record.close()
+        record.close()
         #mainwindow settings
         self.setObjectName("senaKPS")
         self.setWindowTitle('senaKPS')
@@ -73,10 +92,10 @@ class SenaKps(QWidget):
             h_layout.addWidget(self.create_keyblock(i-1))
     #close windows event
     def closeEvent(self, event):
-        record = open(os.path.join(os.getcwd(),'record.senakps'), 'w', encoding='utf-8')
+        record = open(self.snakps_route, 'w', encoding='utf-8')
         record.write('@keyClick\n')
         for index, symbol in enumerate(self.key_symbol):
-            record.write(f'{symbol}: {str(self.counter[index])} click\n')
+            record.write(f'{symbol}:{str(self.counter[index])}\n')
         record.close()
         event.accept()
 
@@ -97,7 +116,7 @@ class SenaKps(QWidget):
         container_layout.addWidget(div_up)
         self.key_symbol_list.append(div_up)
         div_dw = QLabel(self)
-        div_dw.setText(str(0))
+        div_dw.setText(str(self.counter[symbol_index]))
         div_dw.setAlignment(Qt.AlignCenter)
         container_layout.addWidget(div_dw)
 
