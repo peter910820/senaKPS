@@ -65,7 +65,8 @@ class SenaKps(QWidget):
         # def font size
         self.font_size = [1] * self.key_amount
         for index, values in enumerate(self.counter):
-            self.font_size[index] = 26 - len(str(values))
+            self.font_size[index] = 29 - len(str(values)) - 4
+        print(self.font_size)
         #mainwindow settings
         self.setObjectName("senaKPS")
         self.setWindowTitle('senaKPS')
@@ -108,7 +109,7 @@ class SenaKps(QWidget):
         id_name = f'container{symbol_index}'
         css = f'''
         QWidget#{id_name}{{ border: 2px solid {self.settings["color"]["mainColor"]}; }}
-        QWidget#{id_name} QLabel {{ font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]}; }}
+        QWidget#{id_name} QLabel {{ font-size: {self.font_size[symbol_index]}px; font-weight:bold; color: {self.settings["color"]["mainColor"]}; }}
         '''
         container.setObjectName(id_name)
         container.setStyleSheet(css)
@@ -144,7 +145,7 @@ class SenaKps(QWidget):
             if tmp_key in self.key_name:
                 self.counter[self.key_name.index(tmp_key)] += 1
                 if len(str(self.counter[self.key_name.index(tmp_key)])) > self.font_size[self.key_name.index(tmp_key)]:
-                    self.font_size[self.key_name.index(tmp_key)] - 1
+                    self.font_size[self.key_name.index(tmp_key)] - 4
                 css = f'font-size: {self.font_size[self.key_name.index(tmp_key)]}px; font-weight:bold; color: {self.settings["color"]["backgroundColor"]};'
                 self.key_symbol_list[self.key_name.index(tmp_key)].setStyleSheet(css)
                 self.key_count_list[self.key_name.index(tmp_key)].setStyleSheet(css)
