@@ -62,6 +62,10 @@ class SenaKps(QWidget):
             print('senakps file is new or has error!')
             record.close()
         record.close()
+        # def font size
+        self.font_size = [1] * self.key_amount
+        for index, values in enumerate(self.counter):
+            self.font_size[index] = 26 - len(str(values))
         #mainwindow settings
         self.setObjectName("senaKPS")
         self.setWindowTitle('senaKPS')
@@ -131,42 +135,36 @@ class SenaKps(QWidget):
     @pyqtSlot(object)
     def on_press(self, key):
         if self.token == True:
+            tmp_key = str()
             if hasattr(key, 'char'):
-                print((key.char))
-                if key.char in self.key_name:
-                    self.counter[self.key_name.index(key.char)] += 1
-                    css = f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["backgroundColor"]};'
-                    self.key_symbol_list[self.key_name.index(key.char)].setStyleSheet(css)
-                    self.key_count_list[self.key_name.index(key.char)].setStyleSheet(css)
-                    css = f'background-color: {self.settings["color"]["mainColor"]};'
-                    self.key_block_list[self.key_name.index(key.char)].setStyleSheet(css)
-                    self.key_count_list[self.key_name.index(key.char)].setText(str(self.counter[self.key_name.index(key.char)]))
-            if hasattr(key, 'name'):
-                print(key.name)
-                if key.name in self.key_name:
-                    self.counter[self.key_name.index(key.name)] += 1
-                    css = f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["backgroundColor"]};'
-                    self.key_symbol_list[self.key_name.index(key.name)].setStyleSheet(css)
-                    self.key_count_list[self.key_name.index(key.name)].setStyleSheet(css)
-                    css = f'background-color: {self.settings["color"]["mainColor"]};'
-                    self.key_block_list[self.key_name.index(key.name)].setStyleSheet(css)
-                    self.key_count_list[self.key_name.index(key.name)].setText(str(self.counter[self.key_name.index(key.name)]))
+                tmp_key = key.char
+            elif hasattr(key, 'name'):
+                tmp_key = key.name
+            print((tmp_key))
+            if tmp_key in self.key_name:
+                self.counter[self.key_name.index(tmp_key)] += 1
+                if len(str(self.counter[self.key_name.index(tmp_key)])) > self.font_size[self.key_name.index(tmp_key)]:
+                    self.font_size[self.key_name.index(tmp_key)] - 1
+                css = f'font-size: {self.font_size[self.key_name.index(tmp_key)]}px; font-weight:bold; color: {self.settings["color"]["backgroundColor"]};'
+                self.key_symbol_list[self.key_name.index(tmp_key)].setStyleSheet(css)
+                self.key_count_list[self.key_name.index(tmp_key)].setStyleSheet(css)
+                css = f'background-color: {self.settings["color"]["mainColor"]};'
+                self.key_block_list[self.key_name.index(tmp_key)].setStyleSheet(css)
+                self.key_count_list[self.key_name.index(tmp_key)].setText(str(self.counter[self.key_name.index(tmp_key)]))
             self.token = False
 
     @pyqtSlot(object)
     def on_release(self, key):
+        tmp_key = str()
         if hasattr(key, 'char'):
-            if key.char in self.key_name:
-                self.key_symbol_list[self.key_name.index(key.char)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
-                self.key_count_list[self.key_name.index(key.char)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
-                css = f'''QWidget#container{self.key_name.index(key.char)}{{ border: 2px solid {self.settings["color"]["mainColor"]}; background-color: {self.settings["color"]["backgroundColor"]}; }}'''
-                self.key_block_list[self.key_name.index(key.char)].setStyleSheet(css)
-        if hasattr(key, 'name'):
-            if key.name in self.key_name:
-                self.key_symbol_list[self.key_name.index(key.name)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
-                self.key_count_list[self.key_name.index(key.name)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
-                css = f'''QWidget#container{self.key_name.index(key.name)}{{ border: 2px solid {self.settings["color"]["mainColor"]}; background-color: {self.settings["color"]["backgroundColor"]}; }}'''
-                self.key_block_list[self.key_name.index(key.name)].setStyleSheet(css)
+            tmp_key = key.char
+        elif hasattr(key, 'name'):
+            tmp_key = key.name
+        if tmp_key in self.key_name:
+            self.key_symbol_list[self.key_name.index(tmp_key)].setStyleSheet(f'font-size: 25px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
+            self.key_count_list[self.key_name.index(tmp_key)].setStyleSheet(f'font-size: {self.font_size[self.key_name.index(tmp_key)]}px; font-weight:bold; color: {self.settings["color"]["mainColor"]};')
+            css = f'''QWidget#container{self.key_name.index(tmp_key)}{{ border: 2px solid {self.settings["color"]["mainColor"]}; background-color: {self.settings["color"]["backgroundColor"]}; }}'''
+            self.key_block_list[self.key_name.index(tmp_key)].setStyleSheet(css)
         self.token = True
 
 class KeyListener(QObject):

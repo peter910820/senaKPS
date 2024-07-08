@@ -8,6 +8,9 @@ a key record app for all people.
 
 change settings.json settings to count key press.
 
+07/08:
+* fix numbers being hidden in the border when they are too long.
+
 07/06:
 * now can load senakps file and record key press counter.
 
@@ -24,3 +27,6 @@ change settings.json settings to count key press.
 06/27:
 * now can add keyEvent to record more keys
 * now can record number of clicks to .senakps file
+
+TODO:
+初始化渲染畫面時字形無法正常
