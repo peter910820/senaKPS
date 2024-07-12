@@ -11,6 +11,7 @@ from pynput import keyboard
 import threading
 
 from SenakpsModules import file_handler
+from SenakpsModules.main import SenaKps, MainListener
 
 class SenaKpsSetting(QWidget):
     def __init__(self):
@@ -33,7 +34,7 @@ class SenaKpsSetting(QWidget):
         self.symbol_table = file_handler.SymbolTranslate().get_symbol_table()
         self.ui()
         
-    def ui(self):
+    def ui(self) -> None:
         vbox = QWidget(self)
         vbox.setGeometry(0, 0, 335, 300)
         self.v_layout = QVBoxLayout(vbox)
@@ -83,7 +84,7 @@ class SenaKpsSetting(QWidget):
 
         main_start = QPushButton('OK', self)
         main_start.clicked.connect(self.main_start_click)
-        main_start.setEnabled(False)
+        # main_start.setEnabled(False)
 
         self.v_layout.addWidget(hbox_settings)
         self.v_layout.addWidget(new_key, alignment=Qt.AlignTop)
@@ -92,7 +93,7 @@ class SenaKpsSetting(QWidget):
         self.v_layout.addWidget(self.opacity)
         self.v_layout.addWidget(main_start)
 
-    def create_key_area(self):
+    def create_key_area(self) -> None:
         self.key_table = QWidget(self)
         self.key_table_layout = QVBoxLayout(self.key_table)
         self.key_table_layout.setAlignment(Qt.AlignTop)
@@ -119,12 +120,12 @@ class SenaKpsSetting(QWidget):
         self.scroll_area.setWidget(self.key_table)
         self.scroll_area.setWidgetResizable(True)
 
-    def new_key_click(self):
+    def new_key_click(self) -> None:
         self.key_set = KeySet()
         self.key_set.accept_data.connect(self.accept_data)
         self.key_set.show()
 
-    def load_settings_click(self):
+    def load_settings_click(self) -> None:
         filePath, _ = QFileDialog.getOpenFileName(filter='JSON (*.json)')
         try:
             if filePath:
@@ -138,7 +139,7 @@ class SenaKpsSetting(QWidget):
         except:
             print('open file error!')
 
-    def save_settings_click(self):
+    def save_settings_click(self) -> None:
         filePath, _ = QFileDialog.getSaveFileName(filter='JSON (*.json)')
         if filePath:
             setting_file = open(filePath, 'w', encoding='utf-8')
@@ -163,7 +164,7 @@ class SenaKpsSetting(QWidget):
         else:
             print('cancel saving file!')
 
-    def mapping(self):
+    def mapping(self) -> None:
         try:
             self.opacity.setValue(self.settings['opacity'])
             self.backgroundColor = self.settings['color']['backgroundColor']
@@ -206,9 +207,11 @@ class SenaKpsSetting(QWidget):
         except:
             print('format error!')
 
-    def main_start_click(self): pass
+    def main_start_click(self):
+        self.sena_kps = SenaKps()
+        self.sena_kps.show()
 
-    def color_click(self, judge):
+    def color_click(self, judge: bool) -> None:
         color = QColorDialog().getColor()
         print(color.name())
         if judge:
@@ -219,7 +222,7 @@ class SenaKpsSetting(QWidget):
             self.backgroundColor = color.name()
 
     @pyqtSlot(str)
-    def accept_data(self, key):
+    def accept_data(self, key: str) -> None:
         index = self.key_block_index
         key_block = QWidget(self)
         key_block_layout = QHBoxLayout(key_block)
@@ -249,13 +252,12 @@ class SenaKpsSetting(QWidget):
 
         self.key_block_index += 1
 
-    def remove_button_click(self, index):
+    def remove_button_click(self, index: int) -> None:
         self.key_table_layout.removeWidget(self.key_block_list[index])
         self.key_block_list[index].deleteLater()
         self.key_block_list.pop(index, None)
         self.key_block_symbol_list.pop(index, None)
         self.key_block_key_list.pop(index, None)
-        print(f'key_block_list size: {len(self.key_block_list)}')
 
 class KeySet(QWidget):
     accept_data = pyqtSignal(str)
@@ -274,7 +276,7 @@ class KeySet(QWidget):
         self.setFixedSize(300, 300)
         self.ui()
 
-    def ui(self):
+    def ui(self) -> None:
         vbox = QWidget(self)
         vbox.setGeometry(0, 0, 300, 300)
         v_layout = QVBoxLayout(vbox)
@@ -290,13 +292,13 @@ class KeySet(QWidget):
         ok_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         v_layout.addWidget(ok_button, 1)
 
-    def ok_button_click(self):
+    def ok_button_click(self) -> None:
         self.accept_data.emit(self.key)
         self.listener.stop()
         self.close()
         
     @pyqtSlot(object)
-    def on_press(self, key):
+    def on_press(self, key) -> None:
         if hasattr(key, 'char'):
             print(key.char)
             self.key = key.char
@@ -313,13 +315,13 @@ class KeyListener(QObject):
         super().__init__()
         self.listener = keyboard.Listener(on_press=self.on_press)
     
-    def start(self):
+    def start(self) -> None:
         self.listener.start()
         
-    def stop(self):
+    def stop(self) -> None:
          self.listener.stop()
 
-    def on_press(self, key):
+    def on_press(self, key) -> None:
         self.on_press_signal.emit(key)
 
 if __name__ == '__main__':

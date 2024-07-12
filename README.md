@@ -1,12 +1,15 @@
 # senaKPS
 
-a key record app for all people.
+a key record app.
 
 ![cover](img/cover2.png)
 
 ![cover](img/cover.png)
 
 change settings.json settings to count key press.
+
+07/12:
+* integrate settings app and main app
 
 07/08:
 * fix font size cannot be displayed properly during initialization.
@@ -28,3 +31,6 @@ change settings.json settings to count key press.
 06/27:
 * now can add keyEvent to record more keys
 * now can record number of clicks to .senakps file
+
+## LICENSE
+[LICENSE](https://github.com/peter910820/senaKPS/blob/main/LICENSE)

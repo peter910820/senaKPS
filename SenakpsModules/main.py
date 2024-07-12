@@ -5,22 +5,22 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
-import sys, json, os
+
 from pynput import keyboard
+
+import json
 import threading
 
 class SenaKps(QWidget):
     def __init__(self):
         super().__init__()
         # slots and threads(handle pynput listener)
-        self.listener = KeyListener()
+        self.listener = MainListener()
         self.listener.on_press_signal.connect(self.on_press)
         self.listener.on_release_signal.connect(self.on_release)
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
         #variable
-        self.key_symbol = []
-        self.key_name = []
         self.key_block_list = []
         self.key_symbol_list = []
         self.key_count_list = []
@@ -31,9 +31,8 @@ class SenaKps(QWidget):
             if filePath:
                 jsonFile = open(filePath, 'r', encoding='utf-8')
                 self.settings = json.load(jsonFile)
-                for i in self.settings['keyEvent']:
-                    self.key_symbol.append(i['keySymbol'])
-                    self.key_name.append(i['key'])
+                self.key_symbol = [i['keySymbol'] for i in self.settings['keyEvent']]
+                self.key_name = [i['key'] for i in self.settings['keyEvent']]
             else:
                 print('cancel loading file!')
                 self.close()
@@ -85,7 +84,7 @@ class SenaKps(QWidget):
     #     pixmap = pixmap.scaled(self.size())
 
     #     painter.drawPixmap(self.rect(), pixmap)
-    def ui(self):
+    def ui(self) -> None:
         hbox = QWidget(self)
         hbox.setGeometry(0,0,60*self.key_amount,90)
         css = f'background-color: {self.settings["color"]["backgroundColor"]}'
@@ -102,9 +101,10 @@ class SenaKps(QWidget):
         for index, symbol in enumerate(self.key_symbol):
             record.write(f'{symbol}:{str(self.counter[index])}\n')
         record.close()
-        event.accept()
+        self.listener.stop()
+        self.close()
 
-    def create_keyblock(self, symbol_index):
+    def create_keyblock(self, symbol_index) -> object:
         container = QWidget(self)
         id_name = f'container{symbol_index}'
         css = f'''
@@ -129,12 +129,12 @@ class SenaKps(QWidget):
         self.key_block_list.append(container)
         return container
     
-    def key_listener(self):
-        self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
-        self.listener.start()
+    # def key_listener(self):
+    #     self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
+    #     self.listener.start()
 
     @pyqtSlot(object)
-    def on_press(self, key):
+    def on_press(self, key) -> None:
         if self.token == True:
             tmp_key = str()
             if hasattr(key, 'char'):
@@ -155,7 +155,7 @@ class SenaKps(QWidget):
             self.token = False
 
     @pyqtSlot(object)
-    def on_release(self, key):
+    def on_release(self, key) -> None:
         tmp_key = str()
         if hasattr(key, 'char'):
             tmp_key = key.char
@@ -168,7 +168,7 @@ class SenaKps(QWidget):
             self.key_block_list[self.key_name.index(tmp_key)].setStyleSheet(css)
         self.token = True
 
-class KeyListener(QObject):
+class MainListener(QObject):
     on_press_signal = pyqtSignal(object)
     on_release_signal = pyqtSignal(object)
     
@@ -178,15 +178,12 @@ class KeyListener(QObject):
     
     def start(self):
         self.listener.start()
-    
+        
+    def stop(self):
+         self.listener.stop()
+
     def on_press(self, key):
         self.on_press_signal.emit(key)
 
     def on_release(self, key):
         self.on_release_signal.emit(key)
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    mainwindow = SenaKps()
-    mainwindow.show()
-    sys.exit(app.exec_())
