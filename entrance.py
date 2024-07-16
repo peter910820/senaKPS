@@ -5,16 +5,14 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
-import sys, json
-
-from pynput import keyboard
-import threading
+import json, sys, threading
 
 from SenakpsModules import file_handler
 from SenakpsModules.main import SenaKps, MainListener
+from SenakpsModules.key_listener import SettingListener
 
 class SenaKpsSetting(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         #mainwindow settings
         self.setObjectName("senaKPS_Setting")
@@ -207,7 +205,7 @@ class SenaKpsSetting(QWidget):
         except:
             print('format error!')
 
-    def main_start_click(self):
+    def main_start_click(self) -> None:
         self.sena_kps = SenaKps()
         self.sena_kps.show()
 
@@ -264,7 +262,7 @@ class KeySet(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.listener = KeyListener()
+        self.listener = SettingListener()
         self.listener.on_press_signal.connect(self.on_press)
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
@@ -307,22 +305,6 @@ class KeySet(QWidget):
             print(key.name)
             self.key = key.name
             self.key_show.setText(key.name)
-
-class KeyListener(QObject):
-    on_press_signal = pyqtSignal(object)
-    
-    def __init__(self):
-        super().__init__()
-        self.listener = keyboard.Listener(on_press=self.on_press)
-    
-    def start(self) -> None:
-        self.listener.start()
-        
-    def stop(self) -> None:
-         self.listener.stop()
-
-    def on_press(self, key) -> None:
-        self.on_press_signal.emit(key)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
