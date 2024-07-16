@@ -11,6 +11,8 @@ from pynput import keyboard
 import json
 import threading
 
+from SenakpsModules.key_listener import MainListener
+
 class SenaKps(QWidget):
     def __init__(self):
         super().__init__()
@@ -167,23 +169,3 @@ class SenaKps(QWidget):
             css = f'''QWidget#container{self.key_name.index(tmp_key)}{{ border: 2px solid {self.settings["color"]["mainColor"]}; background-color: {self.settings["color"]["backgroundColor"]}; }}'''
             self.key_block_list[self.key_name.index(tmp_key)].setStyleSheet(css)
         self.token = True
-
-class MainListener(QObject):
-    on_press_signal = pyqtSignal(object)
-    on_release_signal = pyqtSignal(object)
-    
-    def __init__(self):
-        super().__init__()
-        self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
-    
-    def start(self):
-        self.listener.start()
-        
-    def stop(self):
-         self.listener.stop()
-
-    def on_press(self, key):
-        self.on_press_signal.emit(key)
-
-    def on_release(self, key):
-        self.on_release_signal.emit(key)
