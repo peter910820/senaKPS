@@ -26,7 +26,7 @@ change settings.json settings to count key press.
 * add load settings method.
 
 06/28:
-* now can use [setting.py](https://github.com/peter910820/senaKPS/blob/main/setting.py) to change settings(settings.json)
+* now can use setting.py to change settings(settings.json)
 
 06/27:
 * now can add keyEvent to record more keys

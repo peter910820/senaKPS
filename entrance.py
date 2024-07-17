@@ -298,13 +298,11 @@ class KeySet(QWidget):
     @pyqtSlot(object)
     def on_press(self, key) -> None:
         if hasattr(key, 'char'):
-            print(key.char)
-            self.key = key.char
-            self.key_show.setText(key.char)
-        if hasattr(key, 'name'):
-            print(key.name)
-            self.key = key.name
-            self.key_show.setText(key.name)
+            key_name = key.char
+        elif hasattr(key, 'name'):
+            key_name = key.name
+        self.key = key_name
+        self.key_show.setText(key_name)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
