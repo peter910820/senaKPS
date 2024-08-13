@@ -8,8 +8,9 @@ from PyQt5.QtGui import QPixmap, QPainter, QColor
 import json, sys, threading
 
 from SenakpsModules import file_handler
-from SenakpsModules.main import SenaKps, MainListener
-from SenakpsModules.key_listener import SettingListener
+from SenakpsModules.mouse_handler import MouseWindow
+from SenakpsModules.main import SenaKps
+from SenakpsModules.listener import SettingListener
 
 class SenaKpsSetting(QWidget):
     def __init__(self) -> None:
@@ -40,6 +41,13 @@ class SenaKpsSetting(QWidget):
         hbox_settings = QWidget(self)
         hbox_settings_layout = QHBoxLayout(hbox_settings)
         hbox_settings_layout.setContentsMargins(0, 0, 0, 0)
+
+        hint = QLabel('*Beta: ', self)
+        hint.setStyleSheet('font-weight:bold; color: "red"')
+        mouse_click = QPushButton('mouse click', self)
+        mouse_click.clicked.connect(self.mouse_click)
+        hbox_settings_layout.addWidget(hint)
+        hbox_settings_layout.addWidget(mouse_click)
 
         load_settings = QPushButton('load settings', self)
         load_settings.clicked.connect(self.load_settings_click)
@@ -256,6 +264,14 @@ class SenaKpsSetting(QWidget):
         self.key_block_list.pop(index, None)
         self.key_block_symbol_list.pop(index, None)
         self.key_block_key_list.pop(index, None)
+
+    def mouse_click(self):
+        try:
+            self.mouse_window = MouseWindow()
+            self.mouse_window.show()
+        except Exception as e:
+            print(f'an error has occurred: {e}')
+
 
 class KeySet(QWidget):
     accept_data = pyqtSignal(str)

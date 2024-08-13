@@ -6,12 +6,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtGui import QPixmap, QPainter, QColor
 
-from pynput import keyboard
-
 import json
 import threading
 
-from SenakpsModules.key_listener import MainListener
+from SenakpsModules.listener import MainListener
 
 class SenaKps(QWidget):
     def __init__(self):
@@ -23,9 +21,7 @@ class SenaKps(QWidget):
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
         #variable
-        self.key_block_list = []
-        self.key_symbol_list = []
-        self.key_count_list = []
+        self.key_block_list, self.key_symbol_list, self.key_count_list = [], [], []
         self.token = True
         # load settings
         filePath, _ = QFileDialog.getOpenFileName(filter='JSON (*.json)')

@@ -8,6 +8,12 @@ a key record app.
 
 change settings.json settings to count key press.
 
+
+## 08/14 new feature !
+
+mouse click!
+
+
 07/12:
 * integrate settings app and main app
 
@@ -31,6 +37,10 @@ change settings.json settings to count key press.
 06/27:
 * now can add keyEvent to record more keys
 * now can record number of clicks to .senakps file
+
+TODO:
+
+* macos thread 9 crash
 
 ## LICENSE
 [LICENSE](https://github.com/peter910820/senaKPS/blob/main/LICENSE)
